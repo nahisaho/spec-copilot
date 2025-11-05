@@ -7,7 +7,7 @@
 
 ## 📖 概要
 
-このディレクトリには、ソフトウェア開発のあらゆる局面をサポートする**18種類の専門AIエージェント**のプロンプトが含まれています。各エージェントは特定のドメインに特化し、段階的な対話フローと実践的なガイドラインを提供します。
+このディレクトリには、ソフトウェア開発のあらゆる局面をサポートする**19種類の専門AIエージェント**のプロンプトが含まれています。各エージェントは特定のドメインに特化し、段階的な対話フローと実践的なガイドラインを提供します。
 
 ### 🎯 特徴
 
@@ -97,7 +97,22 @@ AWS、Azure、GCPのクラウドアーキテクチャ設計。IaCコード（Ter
 
 ---
 
-### 6. 🔍 **Code Reviewer AI**
+### 6. 👨‍💻 **Software Developer AI**
+**ファイル**: `software-developer.md`
+
+コード実装のスペシャリスト。複数言語・フレームワークで本番環境対応のコードを実装。
+
+**主な機能**:
+- REST API実装（TypeScript、Python、Go等）
+- データベースアクセス層構築
+- Azureサービス統合（Blob Storage、Key Vault）
+- ユニットテスト・統合テスト生成
+
+**使用場面**: コード実装、API構築、データベース連携
+
+---
+
+### 7. 🔍 **Code Reviewer AI**
 **ファイル**: `code-reviewer.md`
 
 コードレビューを自動化。可読性、パフォーマンス、セキュリティを網羅的にチェック。
@@ -112,7 +127,7 @@ AWS、Azure、GCPのクラウドアーキテクチャ設計。IaCコード（Ter
 
 ---
 
-### 7. 🗄️ **Database Schema Designer AI**
+### 8. 🗄️ **Database Schema Designer AI**
 **ファイル**: `database-schema-designer.md`
 
 データベース設計の専門家。ER図、正規化、インデックス戦略を提案。
@@ -127,7 +142,7 @@ AWS、Azure、GCPのクラウドアーキテクチャ設計。IaCコード（Ter
 
 ---
 
-### 8. 🚀 **DevOps Engineer AI**
+### 9. 🚀 **DevOps Engineer AI**
 **ファイル**: `devops-engineer.md`
 
 CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、GitHub Actionsをサポート。
@@ -142,7 +157,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 9. 📊 **Observability Engineer AI**
+### 10. 📊 **Observability Engineer AI**
 **ファイル**: `observability-engineer.md`
 
 システム可観測性の設計。Logs、Metrics、Tracesの3本柱を実装。
@@ -157,7 +172,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 10. ⚡ **Performance Optimizer AI**
+### 11. ⚡ **Performance Optimizer AI**
 **ファイル**: `performance-optimizer.md`
 
 パフォーマンスボトルネックの検出と最適化。アルゴリズム改善、キャッシング戦略を提案。
@@ -172,7 +187,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 11. 📋 **Project Manager AI**
+### 12. 📋 **Project Manager AI**
 **ファイル**: `project-manager.md`
 
 プロジェクト計画、進捗管理、リスクマネジメントを支援。
@@ -187,7 +202,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 12. ✅ **Quality Assurance AI**
+### 13. ✅ **Quality Assurance AI**
 **ファイル**: `quality-assurance.md`
 
 品質保証戦略の策定。テスト計画、品質メトリクス測定。
@@ -202,7 +217,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 13. 📝 **Requirements Analyst AI**
+### 14. 📝 **Requirements Analyst AI**
 **ファイル**: `requirements-analyst.md`
 
 要件定義のスペシャリスト。ユーザーストーリー、機能要件、非機能要件を整理。
@@ -217,7 +232,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 14. 🔒 **Security Auditor AI**
+### 15. 🔒 **Security Auditor AI**
 **ファイル**: `security-auditor.md`
 
 セキュリティ監査の専門家。OWASP Top 10準拠、脆弱性診断。
@@ -232,7 +247,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 15. 🏗️ **System Architect AI**
+### 16. 🏗️ **System Architect AI**
 **ファイル**: `system-architect.md`
 
 システムアーキテクチャ設計。C4モデル、ADR（Architecture Decision Records）を作成。
@@ -247,7 +262,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 16. 📚 **Technical Writer AI**
+### 17. 📚 **Technical Writer AI**
 **ファイル**: `technical-writer.md`
 
 技術文書作成の専門家。API仕様書、README、開発者ガイドを生成。
@@ -262,7 +277,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 17. 🧪 **Test Engineer AI**
+### 18. 🧪 **Test Engineer AI**
 **ファイル**: `test-engineer.md`
 
 テスト設計・自動テスト生成。ユニット、統合、E2Eテストをカバー。
@@ -277,7 +292,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
-### 18. 🎨 **UI/UX Designer AI**
+### 19. 🎨 **UI/UX Designer AI**
 **ファイル**: `uiux-designer.md`
 
 ユーザー中心設計。ワイヤーフレーム、デザインシステム、アクセシビリティ対応。
@@ -342,7 +357,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 ## 📁 ファイル構造
 
 ```
-.github/agents/en/
+.github/agents/
 ├── README.md                      # このファイル
 ├── orchestrator.md                # マルチエージェントオーケストレーター
 ├── agile-coach.md                # アジャイルコーチ
@@ -358,6 +373,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 ├── quality-assurance.md          # 品質保証
 ├── requirements-analyst.md       # 要件分析
 ├── security-auditor.md           # セキュリティ監査
+├── software-developer.md         # ソフトウェア開発（コード実装）
 ├── system-architect.md           # システムアーキテクチャ
 ├── technical-writer.md           # 技術文書作成
 ├── test-engineer.md              # テスト設計
@@ -374,7 +390,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 |---------|----------------|
 | **企画・要件定義** | Requirements Analyst, Project Manager |
 | **設計** | System Architect, Database Schema Designer, API Designer |
-| **実装** | Code Reviewer, Bug Hunter |
+| **実装** | Software Developer, Code Reviewer, Bug Hunter |
 | **テスト** | Test Engineer, Quality Assurance |
 | **デプロイ** | DevOps Engineer, Cloud Architect |
 | **運用** | Observability Engineer, Performance Optimizer, Security Auditor |
@@ -385,6 +401,7 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 |------|----------------|
 | **APIを設計したい** | API Designer |
 | **データベースを設計したい** | Database Schema Designer |
+| **コードを実装したい** | Software Developer |
 | **バグを修正したい** | Bug Hunter |
 | **コードをレビューしてほしい** | Code Reviewer |
 | **セキュリティをチェックしたい** | Security Auditor |
@@ -559,7 +576,7 @@ c) その他（理由を教えてください）
 
 ## 📊 統計情報
 
-- **総エージェント数**: 18個
+- **総エージェント数**: 19個
 - **総行数**: 約20,000行
 - **対応プログラミング言語**: Python, JavaScript/TypeScript, Java, Go, C#, SQL, YAML等
 - **対応クラウド**: AWS, Azure, GCP
@@ -581,6 +598,11 @@ c) その他（理由を教えてください）
 ---
 
 ## 📝 更新履歴
+
+### 2025-11-06
+- Software Developer AI エージェントを追加（19個目）
+- DevOps Engineer AI に Azure デプロイ実装例を追加（Azure Pipelines, GitHub Actions, Terraform）
+- Orchestrator AI を17エージェントに更新
 
 ### 2025-01-15
 - 初回リリース: 18個のエージェントプロンプトを公開

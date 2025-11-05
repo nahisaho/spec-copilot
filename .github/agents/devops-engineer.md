@@ -220,6 +220,329 @@ jobs:
             --wait --timeout 5m
 ```
 
+### 3.3 Azure Pipelines with AKS Deployment
+
+#### Azure Pipeline Configuration (azure-pipelines.yml)
+```yaml
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+
+variables:
+  azureSubscription: 'Azure-Service-Connection'
+  resourceGroup: 'myapp-rg'
+  aksCluster: 'myapp-aks'
+  acrName: 'myappacr'
+  imageName: 'myapp'
+  imageTag: '$(Build.BuildId)'
+
+stages:
+  # Stage 1: Build and Push to ACR
+  - stage: Build
+    displayName: 'Build and Push Docker Image'
+    jobs:
+      - job: BuildJob
+        displayName: 'Build Docker Image'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: Docker@2
+            displayName: 'Build Docker Image'
+            inputs:
+              command: build
+              repository: $(acrName).azurecr.io/$(imageName)
+              dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Login to ACR'
+            inputs:
+              command: login
+              containerRegistry: $(azureSubscription)
+
+          - task: Docker@2
+            displayName: 'Push to ACR'
+            inputs:
+              command: push
+              repository: $(acrName).azurecr.io/$(imageName)
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: AzureCLI@2
+            displayName: 'Scan Image with Trivy'
+            inputs:
+              azureSubscription: $(azureSubscription)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                az acr run \
+                  --registry $(acrName) \
+                  --cmd "trivy image --severity HIGH,CRITICAL $(acrName).azurecr.io/$(imageName):$(imageTag)" \
+                  /dev/null
+
+  # Stage 2: Deploy to AKS Staging
+  - stage: DeployStaging
+    displayName: 'Deploy to Staging'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
+    jobs:
+      - deployment: DeployStaging
+        displayName: 'Deploy to AKS Staging'
+        environment: 'staging'
+        pool:
+          vmImage: 'ubuntu-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: 'Get AKS Credentials'
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az aks get-credentials \
+                        --resource-group $(resourceGroup)-staging \
+                        --name $(aksCluster)-staging \
+                        --overwrite-existing
+
+                - task: HelmDeploy@0
+                  displayName: 'Deploy with Helm'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscription: $(azureSubscription)
+                    azureResourceGroup: $(resourceGroup)-staging
+                    kubernetesCluster: $(aksCluster)-staging
+                    namespace: 'staging'
+                    command: 'upgrade'
+                    chartType: 'FilePath'
+                    chartPath: '$(Build.SourcesDirectory)/helm/myapp'
+                    releaseName: 'myapp'
+                    overrideValues: |
+                      image.repository=$(acrName).azurecr.io/$(imageName)
+                      image.tag=$(imageTag)
+                      environment=staging
+                    waitForExecution: true
+
+  # Stage 3: Deploy to AKS Production
+  - stage: DeployProduction
+    displayName: 'Deploy to Production'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - deployment: DeployProduction
+        displayName: 'Deploy to AKS Production'
+        environment: 'production'
+        pool:
+          vmImage: 'ubuntu-latest'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: 'Get AKS Credentials'
+                  inputs:
+                    azureSubscription: $(azureSubscription)
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      az aks get-credentials \
+                        --resource-group $(resourceGroup) \
+                        --name $(aksCluster) \
+                        --overwrite-existing
+
+                - task: HelmDeploy@0
+                  displayName: 'Canary Deployment (10%)'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscription: $(azureSubscription)
+                    azureResourceGroup: $(resourceGroup)
+                    kubernetesCluster: $(aksCluster)
+                    namespace: 'production'
+                    command: 'upgrade'
+                    chartType: 'FilePath'
+                    chartPath: '$(Build.SourcesDirectory)/helm/myapp'
+                    releaseName: 'myapp'
+                    overrideValues: |
+                      image.repository=$(acrName).azurecr.io/$(imageName)
+                      image.tag=$(imageTag)
+                      canary.enabled=true
+                      canary.weight=10
+                    waitForExecution: true
+
+                - task: Bash@3
+                  displayName: 'Monitor Canary'
+                  inputs:
+                    targetType: 'inline'
+                    script: |
+                      echo "Monitoring canary deployment for 5 minutes..."
+                      sleep 300
+
+                - task: HelmDeploy@0
+                  displayName: 'Full Rollout (100%)'
+                  inputs:
+                    connectionType: 'Azure Resource Manager'
+                    azureSubscription: $(azureSubscription)
+                    azureResourceGroup: $(resourceGroup)
+                    kubernetesCluster: $(aksCluster)
+                    namespace: 'production'
+                    command: 'upgrade'
+                    chartType: 'FilePath'
+                    chartPath: '$(Build.SourcesDirectory)/helm/myapp'
+                    releaseName: 'myapp'
+                    overrideValues: |
+                      image.repository=$(acrName).azurecr.io/$(imageName)
+                      image.tag=$(imageTag)
+                      canary.enabled=false
+                    waitForExecution: true
+```
+
+### 3.4 GitHub Actions with Azure Deployment
+
+#### GitHub Actions Workflow for Azure
+```yaml
+name: Azure CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  AZURE_RESOURCE_GROUP: myapp-rg
+  AKS_CLUSTER: myapp-aks
+  ACR_NAME: myappacr
+  IMAGE_NAME: myapp
+
+jobs:
+  # Stage 1: Build and Push to ACR
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to ACR
+        run: |
+          az acr login --name ${{ env.ACR_NAME }}
+
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+          docker build -t ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest .
+          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+
+      - name: Security Scan with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Stage 2: Deploy to AKS Staging
+  deploy-staging:
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.myapp.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }}-staging \
+            --name ${{ env.AKS_CLUSTER }}-staging \
+            --overwrite-existing
+
+      - name: Deploy to AKS with Helm
+        run: |
+          helm upgrade --install myapp ./helm/myapp \
+            --namespace staging \
+            --create-namespace \
+            --set image.repository=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }} \
+            --set image.tag=${{ github.sha }} \
+            --set environment=staging \
+            --wait --timeout 5m
+
+      - name: Run Smoke Tests
+        run: |
+          kubectl wait --for=condition=ready pod -l app=myapp -n staging --timeout=300s
+          kubectl get pods -n staging
+
+  # Stage 3: Deploy to AKS Production
+  deploy-production:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://myapp.com
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Get AKS Credentials
+        run: |
+          az aks get-credentials \
+            --resource-group ${{ env.AZURE_RESOURCE_GROUP }} \
+            --name ${{ env.AKS_CLUSTER }} \
+            --overwrite-existing
+
+      - name: Canary Deployment (10%)
+        run: |
+          helm upgrade --install myapp ./helm/myapp \
+            --namespace production \
+            --create-namespace \
+            --set image.repository=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }} \
+            --set image.tag=${{ github.sha }} \
+            --set canary.enabled=true \
+            --set canary.weight=10 \
+            --wait --timeout 5m
+
+      - name: Monitor Canary
+        run: |
+          echo "Monitoring canary deployment..."
+          sleep 300
+
+      - name: Full Rollout (100%)
+        run: |
+          helm upgrade --install myapp ./helm/myapp \
+            --namespace production \
+            --set image.repository=${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }} \
+            --set image.tag=${{ github.sha }} \
+            --set canary.enabled=false \
+            --wait --timeout 5m
+```
+
 ---
 
 ## 4. Docker & Container Strategy
@@ -629,6 +952,205 @@ output "cluster_name" {
 }
 ```
 
+### 6.2 Terraform (Azure AKS Example)
+
+```hcl
+# variables.tf
+variable "resource_group_name" {
+  description = "Azure Resource Group name"
+  type        = string
+  default     = "myapp-rg"
+}
+
+variable "location" {
+  description = "Azure region"
+  type        = string
+  default     = "japaneast"
+}
+
+variable "cluster_name" {
+  description = "AKS cluster name"
+  type        = string
+  default     = "myapp-aks"
+}
+
+variable "kubernetes_version" {
+  description = "Kubernetes version"
+  type        = string
+  default     = "1.28"
+}
+
+variable "acr_name" {
+  description = "Azure Container Registry name"
+  type        = string
+  default     = "myappacr"
+}
+
+# main.tf
+terraform {
+  required_version = ">= 1.6"
+
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 3.0"
+    }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.0"
+    }
+  }
+
+  backend "azurerm" {
+    resource_group_name  = "terraform-state-rg"
+    storage_account_name = "tfstatestore"
+    container_name       = "tfstate"
+    key                  = "aks/production/terraform.tfstate"
+  }
+}
+
+provider "azurerm" {
+  features {}
+}
+
+# Resource Group
+resource "azurerm_resource_group" "main" {
+  name     = var.resource_group_name
+  location = var.location
+
+  tags = {
+    Environment = "production"
+    ManagedBy   = "Terraform"
+  }
+}
+
+# Virtual Network
+resource "azurerm_virtual_network" "main" {
+  name                = "${var.cluster_name}-vnet"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  address_space       = ["10.0.0.0/16"]
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+# Subnet for AKS
+resource "azurerm_subnet" "aks" {
+  name                 = "aks-subnet"
+  resource_group_name  = azurerm_resource_group.main.name
+  virtual_network_name = azurerm_virtual_network.main.name
+  address_prefixes     = ["10.0.1.0/24"]
+}
+
+# Azure Container Registry
+resource "azurerm_container_registry" "main" {
+  name                = var.acr_name
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+  sku                 = "Standard"
+  admin_enabled       = false
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+# AKS Cluster
+resource "azurerm_kubernetes_cluster" "main" {
+  name                = var.cluster_name
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  dns_prefix          = "${var.cluster_name}-dns"
+  kubernetes_version  = var.kubernetes_version
+
+  default_node_pool {
+    name                = "default"
+    node_count          = 3
+    vm_size             = "Standard_D2s_v3"
+    vnet_subnet_id      = azurerm_subnet.aks.id
+    enable_auto_scaling = true
+    min_count           = 2
+    max_count           = 10
+    max_pods            = 110
+
+    upgrade_settings {
+      max_surge = "33%"
+    }
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  network_profile {
+    network_plugin    = "azure"
+    network_policy    = "azure"
+    load_balancer_sku = "standard"
+    service_cidr      = "10.1.0.0/16"
+    dns_service_ip    = "10.1.0.10"
+  }
+
+  azure_active_directory_role_based_access_control {
+    managed                = true
+    azure_rbac_enabled     = true
+    admin_group_object_ids = []
+  }
+
+  oms_agent {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
+  }
+
+  key_vault_secrets_provider {
+    secret_rotation_enabled = true
+  }
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+# Log Analytics Workspace
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "${var.cluster_name}-logs"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+
+  tags = {
+    Environment = "production"
+  }
+}
+
+# ACR Role Assignment for AKS
+resource "azurerm_role_assignment" "aks_acr_pull" {
+  principal_id                     = azurerm_kubernetes_cluster.main.kubelet_identity[0].object_id
+  role_definition_name             = "AcrPull"
+  scope                            = azurerm_container_registry.main.id
+  skip_service_principal_aad_check = true
+}
+
+# Outputs
+output "kube_config" {
+  value     = azurerm_kubernetes_cluster.main.kube_config_raw
+  sensitive = true
+}
+
+output "cluster_endpoint" {
+  value = azurerm_kubernetes_cluster.main.fqdn
+}
+
+output "acr_login_server" {
+  value = azurerm_container_registry.main.login_server
+}
+
+output "resource_group_name" {
+  value = azurerm_resource_group.main.name
+}
+```
+
 ---
 
 ## 7. Monitoring & Logging
@@ -948,7 +1470,9 @@ Azure MCP Server (Model Context Protocol Server) is a tool for integrating AI de
 
 #### Overview
 - **Status**: Public Preview (Released May 2025)
-- **Official Documentation**: [Microsoft Learn](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/)
+- **Official Documentation**:
+  - [Azure MCP Server Overview](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/)
+  - **[GitHub Copilot Coding Agent Integration](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent)** ⭐ **Use this for implementation**
 - **Authentication**: Azure Entra ID (via Azure Identity library)
 - **Supported IDEs**: VS Code, Cursor, Cline, IntelliJ, Visual Studio, Windsurf
 
@@ -962,33 +1486,27 @@ Azure MCP Server (Model Context Protocol Server) is a tool for integrating AI de
 - **Azure Service Bus**: Messaging operations
 - **Azure Developer Best Practices**: DevOps best practice recommendations
 
-#### Installation Methods
+#### Installation & Setup
 
-**Via npm (Node.js):**
-```bash
-npm install -g @azure/mcp-server-azure
-```
+**For detailed installation and configuration instructions, refer to the official documentation:**
+👉 **[GitHub Copilot Coding Agent Integration Guide](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent)**
 
-**Via pip (Python):**
-```bash
-pip install azure-mcp-server
-```
+**Quick Start:**
 
-**VS Code Integration:**
-1. Install GitHub Copilot extension in VS Code
-2. Add MCP server to VS Code settings (`settings.json`):
-```json
-{
-  "github.copilot.advanced": {
-    "mcpServers": {
-      "azure": {
-        "command": "npx",
-        "args": ["-y", "@azure/mcp-server-azure"]
-      }
-    }
-  }
-}
-```
+1. **Install Azure MCP Server**
+   ```bash
+   # Via npm (Node.js)
+   npm install -g @azure/mcp-server-azure
+
+   # Via pip (Python)
+   pip install azure-mcp-server
+   ```
+
+2. **Configure in VS Code**
+   See [official setup guide](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent#configure-the-azure-mcp-server) for complete configuration steps.
+
+3. **Authenticate with Azure**
+   Follow authentication steps in the [official documentation](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent#authenticate-to-azure).
 
 #### Usage Examples
 
@@ -1008,6 +1526,9 @@ GitHub Copilot: "Connect to production-db PostgreSQL database and count users ta
 - Secret retrieval from Key Vault
 - Service Bus message monitoring
 
+**For more examples and best practices, see:**
+👉 [Official Usage Examples](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent#use-azure-mcp-server-with-github-copilot)
+
 #### Security Best Practices
 1. **Authentication**: Use Azure Entra ID (formerly Azure AD) with least privilege principle
 2. **Environment Separation**: Recommended for development (avoid direct production operations)
@@ -1020,9 +1541,328 @@ GitHub Copilot: "Connect to production-db PostgreSQL database and count users ta
 - Primarily intended for local development/testing in dev environments
 
 #### Reference Links
+- **[GitHub Copilot Coding Agent Integration](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent)** ⭐ **Primary Reference**
 - [Azure MCP Server Official Documentation](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/)
 - [Azure MCP Server GitHub Repository](https://github.com/microsoft/azure-mcp-server)
 - [Model Context Protocol Specification](https://modelcontextprotocol.io/)
+
+**💡 Note**: Always refer to the [official GitHub Copilot integration guide](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent) for the latest setup instructions, authentication methods, and best practices.
+
+#### Automation Script Examples with Azure MCP Server
+
+**📚 For comprehensive examples and best practices, see the [official documentation](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent).**
+
+The following examples demonstrate integration patterns. Always refer to the official guide for the latest implementation details.
+
+**1. Post-Deployment Verification Script**
+```bash
+#!/bin/bash
+# post-deploy-check.sh
+# This script can be integrated into CI/CD pipelines with Azure MCP Server
+
+set -e
+
+RESOURCE_GROUP="myapp-rg"
+AKS_CLUSTER="myapp-aks"
+NAMESPACE="production"
+
+echo "🔍 Starting post-deployment verification..."
+
+# Get AKS credentials
+az aks get-credentials \
+  --resource-group "$RESOURCE_GROUP" \
+  --name "$AKS_CLUSTER" \
+  --overwrite-existing
+
+# Check deployment status
+echo "📊 Checking deployment status..."
+kubectl rollout status deployment/myapp -n "$NAMESPACE" --timeout=5m
+
+# Verify pod health
+echo "🏥 Verifying pod health..."
+READY_PODS=$(kubectl get pods -n "$NAMESPACE" -l app=myapp \
+  -o jsonpath='{.items[?(@.status.phase=="Running")].metadata.name}' | wc -w)
+TOTAL_PODS=$(kubectl get pods -n "$NAMESPACE" -l app=myapp --no-headers | wc -l)
+
+if [ "$READY_PODS" -eq "$TOTAL_PODS" ]; then
+  echo "✅ All pods are healthy ($READY_PODS/$TOTAL_PODS)"
+else
+  echo "❌ Some pods are not ready ($READY_PODS/$TOTAL_PODS)"
+  exit 1
+fi
+
+# Check service endpoints
+echo "🌐 Checking service endpoints..."
+SERVICE_IP=$(kubectl get svc myapp -n "$NAMESPACE" \
+  -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+echo "Service IP: $SERVICE_IP"
+
+# Health check
+echo "🩺 Performing health check..."
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://$SERVICE_IP/health" || echo "000")
+if [ "$HTTP_STATUS" -eq 200 ]; then
+  echo "✅ Health check passed (HTTP $HTTP_STATUS)"
+else
+  echo "❌ Health check failed (HTTP $HTTP_STATUS)"
+  exit 1
+fi
+
+# Check Azure Monitor metrics
+echo "📈 Checking Azure Monitor metrics..."
+az monitor metrics list \
+  --resource "/subscriptions/$AZURE_SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP/providers/Microsoft.ContainerService/managedClusters/$AKS_CLUSTER" \
+  --metric "node_cpu_usage_percentage" \
+  --interval PT5M \
+  --output table
+
+echo "✅ Post-deployment verification completed successfully!"
+```
+
+**2. Infrastructure Health Check Script**
+```python
+#!/usr/bin/env python3
+# infrastructure-health-check.py
+# Can be executed with Azure MCP Server integration
+
+import os
+import sys
+from azure.identity import DefaultAzureCredential
+from azure.mgmt.containerservice import ContainerServiceClient
+from azure.mgmt.containerregistry import ContainerRegistryManagementClient
+from azure.mgmt.monitor import MonitorManagementClient
+from datetime import datetime, timedelta
+
+def check_aks_health(subscription_id, resource_group, cluster_name):
+    """Check AKS cluster health"""
+    credential = DefaultAzureCredential()
+    client = ContainerServiceClient(credential, subscription_id)
+
+    cluster = client.managed_clusters.get(resource_group, cluster_name)
+
+    print(f"🔍 AKS Cluster: {cluster.name}")
+    print(f"   Status: {cluster.provisioning_state}")
+    print(f"   Kubernetes Version: {cluster.kubernetes_version}")
+    print(f"   Node Count: {cluster.agent_pool_profiles[0].count}")
+
+    if cluster.provisioning_state != "Succeeded":
+        print(f"❌ Cluster is not in Succeeded state")
+        return False
+
+    print("✅ AKS cluster is healthy")
+    return True
+
+def check_acr_health(subscription_id, resource_group, registry_name):
+    """Check Azure Container Registry health"""
+    credential = DefaultAzureCredential()
+    client = ContainerRegistryManagementClient(credential, subscription_id)
+
+    registry = client.registries.get(resource_group, registry_name)
+
+    print(f"🔍 ACR: {registry.name}")
+    print(f"   Status: {registry.provisioning_state}")
+    print(f"   Login Server: {registry.login_server}")
+
+    if registry.provisioning_state != "Succeeded":
+        print(f"❌ Registry is not in Succeeded state")
+        return False
+
+    print("✅ ACR is healthy")
+    return True
+
+def check_recent_deployments(subscription_id, resource_group):
+    """Check recent deployment errors"""
+    credential = DefaultAzureCredential()
+    from azure.mgmt.resource import ResourceManagementClient
+
+    client = ResourceManagementClient(credential, subscription_id)
+
+    print("🔍 Checking recent deployments...")
+    deployments = client.deployments.list_by_resource_group(
+        resource_group,
+        top=5
+    )
+
+    for deployment in deployments:
+        status = "✅" if deployment.properties.provisioning_state == "Succeeded" else "❌"
+        print(f"   {status} {deployment.name}: {deployment.properties.provisioning_state}")
+
+    return True
+
+def main():
+    subscription_id = os.environ.get("AZURE_SUBSCRIPTION_ID")
+    resource_group = os.environ.get("AZURE_RESOURCE_GROUP", "myapp-rg")
+    aks_cluster = os.environ.get("AKS_CLUSTER", "myapp-aks")
+    acr_name = os.environ.get("ACR_NAME", "myappacr")
+
+    if not subscription_id:
+        print("❌ AZURE_SUBSCRIPTION_ID environment variable not set")
+        sys.exit(1)
+
+    print("🚀 Starting infrastructure health check...")
+    print(f"   Subscription: {subscription_id}")
+    print(f"   Resource Group: {resource_group}")
+    print()
+
+    results = []
+
+    # Check AKS
+    results.append(check_aks_health(subscription_id, resource_group, aks_cluster))
+    print()
+
+    # Check ACR
+    results.append(check_acr_health(subscription_id, resource_group, acr_name))
+    print()
+
+    # Check Deployments
+    results.append(check_recent_deployments(subscription_id, resource_group))
+    print()
+
+    if all(results):
+        print("✅ All infrastructure health checks passed!")
+        sys.exit(0)
+    else:
+        print("❌ Some health checks failed")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+```
+
+**3. Secret Rotation Script with Key Vault**
+```bash
+#!/bin/bash
+# rotate-secrets.sh
+# Automated secret rotation using Azure Key Vault
+
+set -e
+
+KEY_VAULT_NAME="myapp-keyvault"
+SECRET_NAME="database-password"
+AKS_CLUSTER="myapp-aks"
+RESOURCE_GROUP="myapp-rg"
+NAMESPACE="production"
+
+echo "🔐 Starting secret rotation..."
+
+# Generate new password
+NEW_PASSWORD=$(openssl rand -base64 32)
+
+# Store in Azure Key Vault
+echo "📝 Storing new secret in Key Vault..."
+az keyvault secret set \
+  --vault-name "$KEY_VAULT_NAME" \
+  --name "$SECRET_NAME" \
+  --value "$NEW_PASSWORD" \
+  --output none
+
+# Update database password (example for PostgreSQL)
+echo "🗄️ Updating database password..."
+az postgres flexible-server update \
+  --resource-group "$RESOURCE_GROUP" \
+  --name "myapp-db" \
+  --admin-password "$NEW_PASSWORD"
+
+# Restart pods to pick up new secret
+echo "♻️ Restarting application pods..."
+az aks get-credentials \
+  --resource-group "$RESOURCE_GROUP" \
+  --name "$AKS_CLUSTER" \
+  --overwrite-existing
+
+kubectl rollout restart deployment/myapp -n "$NAMESPACE"
+kubectl rollout status deployment/myapp -n "$NAMESPACE" --timeout=5m
+
+echo "✅ Secret rotation completed successfully!"
+```
+
+**4. GitHub Actions Integration Example**
+```yaml
+# .github/workflows/azure-health-check.yml
+name: Azure Infrastructure Health Check
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Every 6 hours
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Dependencies
+        run: |
+          pip install azure-identity azure-mgmt-containerservice \
+                      azure-mgmt-containerregistry azure-mgmt-monitor
+
+      - name: Run Health Check
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          AZURE_RESOURCE_GROUP: myapp-rg
+          AKS_CLUSTER: myapp-aks
+          ACR_NAME: myappacr
+        run: python scripts/infrastructure-health-check.py
+
+      - name: Notify on Failure
+        if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          payload: |
+            {
+              "text": "⚠️ Azure Infrastructure Health Check Failed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Azure Infrastructure Health Check Failed*\n\nWorkflow: ${{ github.workflow }}\nRun: ${{ github.run_id }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+```
+
+**5. Azure MCP Server CLI Integration Example**
+
+**📖 See the [official guide](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent#use-azure-mcp-server-with-github-copilot) for complete usage instructions.**
+
+```bash
+# Using Azure MCP Server in VS Code with GitHub Copilot
+# Example prompts:
+
+# 1. Check AKS cluster status
+"List all AKS clusters in myapp-rg resource group and show their status"
+
+# 2. Verify container images in ACR
+"Show the latest 5 images in myappacr container registry"
+
+# 3. Check Key Vault secrets
+"List all secrets in myapp-keyvault and show their last modified dates"
+
+# 4. Query Application Insights
+"Show error rate for myapp in the last hour from Application Insights"
+
+# 5. Check deployment history
+"Show the last 10 deployments in myapp-rg resource group"
+
+# These prompts are interpreted by GitHub Copilot + Azure MCP Server
+# and automatically execute appropriate Azure CLI commands
+```
+
+**💡 Tip**: For more prompt examples and advanced usage patterns, refer to the [official documentation](https://learn.microsoft.com/en-us/azure/developer/azure-mcp-server/how-to/github-copilot-coding-agent).
 
 ---
 
