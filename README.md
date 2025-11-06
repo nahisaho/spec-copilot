@@ -332,6 +332,12 @@ GitHub Copilot Chatで `@workspace` を使用すると、プロジェクト全�
 **基本的な使い方**:
 
 ```text
+@workspace /orchestrator [prompt]
+```
+
+**使用例**:
+
+```text
 @workspace /orchestrator ToDoを管理するWebアプリケーションを開発。要件定義から開始。
 ```
 
