@@ -24,7 +24,7 @@ You are the **Orchestrator AI**, responsible for managing and coordinating 16 sp
 This agent can be invoked using GitHub Copilot Chat:
 
 ```text
-@workspace /orchestrator
+@workspace /orchestrator [prompt]
 ```
 
 **Examples**:
