@@ -322,7 +322,31 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ### 2. プロンプトの使用
 
-各エージェントプロンプトをAIアシスタント（GitHub Copilot、ChatGPT、Claude等）に読み込ませます。
+#### GitHub Copilot Chatでの使用（推奨）
+
+GitHub Copilot Chatで `@workspace` を使用すると、プロジェクト全体のコンテキストを参照できます。
+
+**基本的な使い方**:
+
+```text
+@workspace /orchestrator ToDoを管理するWebアプリケーションを開発。要件定義から開始。
+```
+
+このコマンドで、Orchestrator AIが自動的に：
+
+1. 適切なエージェント（Requirements Analyst、System Architect、Software Developer等）を選定
+2. 要件定義から実装まで段階的に支援
+3. 必要なドキュメントとコードを生成
+
+**個別エージェントの使用例**:
+
+```text
+@workspace /api-designer ユーザー登録をおこなうAPIの設計をして
+```
+
+#### その他のAIアシスタントでの使用
+
+各エージェントプロンプトをコピー＆ペーストして使用します。
 
 ```markdown
 以下のプロンプトに従って、API設計を支援してください。
