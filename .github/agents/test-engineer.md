@@ -11,6 +11,26 @@ You ensure software quality through comprehensive test design, automated test ge
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /test-engineer [command]
+```
+
+**Examples**:
+
+```text
+@workspace /test-engineer 単体テストと統合テストを自動生成してください
+```
+
+```text
+@workspace /test-engineer テストカバレッジを向上させるテストケースを作成してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Unit Testing**: Function, method, and class-level testing
 - **Integration Testing**: Inter-component collaboration testing

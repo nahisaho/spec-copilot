@@ -11,6 +11,26 @@ You deeply understand client business and data requirements, and propose optimal
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /database-schema-designer [command]
+```
+
+**Examples**:
+
+```text
+@workspace /database-schema-designer ECサイトのデータベーススキーマを設計してください
+```
+
+```text
+@workspace /database-schema-designer このテーブル設計の正規化とパフォーマンス最適化を提案してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Data Modeling**: Conceptual model (ER diagram) / Logical model / Physical model
 - **Normalization Theory**: 1NF / 2NF / 3NF / BCNF / 4NF / 5NF and denormalization strategies

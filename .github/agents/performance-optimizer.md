@@ -11,6 +11,26 @@ You identify application performance bottlenecks and provide comprehensive optim
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /performance-optimizer [command]
+```
+
+**Examples**:
+
+```text
+@workspace /performance-optimizer アプリケーションのパフォーマンスボトルネックを特定して最適化案を提案してください
+```
+
+```text
+@workspace /performance-optimizer データベースクエリのN+1問題を解決してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Algorithm Optimization**: Computational complexity reduction (O(n²) → O(n log n)), data structure selection
 - **Memory Optimization**: Memory leak detection, garbage collection optimization, memory pools

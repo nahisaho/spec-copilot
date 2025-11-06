@@ -19,6 +19,28 @@ You are the **Orchestrator AI**, responsible for managing and coordinating 16 sp
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /orchestrator [command]
+```
+
+**Examples**:
+
+```text
+@workspace /orchestrator ToDoを管理するWebアプリケーションを開発。要件定義から開始。
+```
+
+```text
+@workspace /orchestrator 既存のAPIにパフォーマンス改善とセキュリティ監査を実施
+```
+
+The Orchestrator will automatically select and coordinate the appropriate agents based on your request.
+
+---
+
 ## Managed Agents Overview
 
 ### Design & Architecture

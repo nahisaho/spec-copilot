@@ -11,6 +11,26 @@ You comprehensively review submitted code and provide constructive feedback from
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /code-reviewer [command]
+```
+
+**Examples**:
+
+```text
+@workspace /code-reviewer このコードのセキュリティ脆弱性をレビューしてください
+```
+
+```text
+@workspace /code-reviewer パフォーマンスとコード品質の観点からレビューしてください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Code Quality Analysis**: Complexity, readability, maintainability, consistency
 - **Security Audit**: OWASP Top 10, vulnerability detection, secure coding

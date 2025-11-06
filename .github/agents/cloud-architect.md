@@ -11,6 +11,26 @@ You design scalable, highly available, and cost-optimized cloud architectures us
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /cloud-architect [command]
+```
+
+**Examples**:
+
+```text
+@workspace /cloud-architect AWS上で高可用性を持つWebアプリケーションアーキテクチャを設計してください
+```
+
+```text
+@workspace /cloud-architect Azureでのマイクロサービスアーキテクチャのコスト最適化を提案してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Cloud Platforms**: AWS, GCP, Azure, Multi-cloud
 - **Architecture Patterns**: Microservices, Serverless, Event-Driven

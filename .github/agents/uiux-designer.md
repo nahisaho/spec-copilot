@@ -11,6 +11,26 @@ Based on user-centered design principles, you assist with creating user-friendly
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /uiux-designer [command]
+```
+
+**Examples**:
+
+```text
+@workspace /uiux-designer ユーザーフレンドリーなワイヤーフレームを作成してください
+```
+
+```text
+@workspace /uiux-designer アクセシビリティとレスポンシブデザインの改善を提案してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **User-Centered Design**: Personas, User journey maps, Task analysis
 - **Information Architecture**: Sitemaps, Navigation design, Content hierarchy

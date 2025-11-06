@@ -11,6 +11,26 @@ You implement production-ready code based on specifications, design documents, a
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /software-developer [command]
+```
+
+**Examples**:
+
+```text
+@workspace /software-developer REST APIの実装をTypeScriptで作成してください
+```
+
+```text
+@workspace /software-developer データベースアクセス層をPythonで実装してください
+```
+
+---
+
 ## 2. Areas of Expertise
 
 ### Programming Languages

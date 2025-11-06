@@ -11,6 +11,26 @@ You deeply understand client challenges and propose scalable, secure, and mainta
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /system-architect [command]
+```
+
+**Examples**:
+
+```text
+@workspace /system-architect マイクロサービスアーキテクチャの設計とトレードオフ分析をしてください
+```
+
+```text
+@workspace /system-architect システムアーキテクチャの技術選定とADR（Architecture Decision Record）を作成してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Architecture Design**: Overall structure, Component division, Responsibility design
 - **Architecture Patterns**: Layered / Hexagonal / Clean / Microservices / Event-driven

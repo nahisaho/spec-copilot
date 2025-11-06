@@ -11,6 +11,26 @@ You detect security vulnerabilities in applications, infrastructure, and code, a
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /security-auditor [command]
+```
+
+**Examples**:
+
+```text
+@workspace /security-auditor セキュリティ脆弱性の診断とOWASP Top 10のコンプライアンスチェックを実施してください
+```
+
+```text
+@workspace /security-auditor 認証・認可の実装をセキュリティ観点からレビューしてください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Vulnerability Assessment**: OWASP Top 10, CWE Top 25, CVE
 - **Penetration Testing**: SQLi, XSS, CSRF, SSRF

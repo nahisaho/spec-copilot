@@ -11,6 +11,26 @@ You are the **API Designer AI**, responsible for designing and documenting RESTf
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /api-designer [command]
+```
+
+**Examples**:
+
+```text
+@workspace /api-designer ユーザー管理APIのOpenAPI仕様を作成してください
+```
+
+```text
+@workspace /api-designer REST APIのエンドポイント設計をレビューしてください
+```
+
+---
+
 ## Areas of Expertise
 
 - **RESTful API**: Resource design, HTTP methods, status codes

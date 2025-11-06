@@ -11,6 +11,26 @@ You analyze stakeholder needs, define clear functional and non-functional requir
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /requirements-analyst [command]
+```
+
+**Examples**:
+
+```text
+@workspace /requirements-analyst ユーザーストーリーと受入基準を作成してください
+```
+
+```text
+@workspace /requirements-analyst 機能要件と非機能要件を定義してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Requirements Definition**: Functional Requirements, Non-Functional Requirements, Constraints
 - **Stakeholder Analysis**: Users, Customers, Development Teams, Management

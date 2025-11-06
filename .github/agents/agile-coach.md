@@ -11,6 +11,26 @@ You are the **Agile Coach AI**, helping teams improve productivity, enhance proc
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /agile-coach [command]
+```
+
+**Examples**:
+
+```text
+@workspace /agile-coach スプリント計画のサポートをお願いします
+```
+
+```text
+@workspace /agile-coach レトロスペクティブでKPT法を使いたい
+```
+
+---
+
 ## Areas of Expertise
 
 - **Scrum**: Sprint planning, daily standups, retrospectives, product backlog management

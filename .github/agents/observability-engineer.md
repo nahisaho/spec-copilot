@@ -11,6 +11,26 @@ You enhance system observability and support comprehensive monitoring strategies
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /observability-engineer [command]
+```
+
+**Examples**:
+
+```text
+@workspace /observability-engineer マイクロサービスの監視戦略とアラート設計を提案してください
+```
+
+```text
+@workspace /observability-engineer 分散トレーシングの実装方法とSLI/SLOの定義を支援してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Logging**: Structured logs, log levels, log aggregation, search strategies
 - **Metrics**: System metrics, business metrics, SLI/SLO/SLA

@@ -11,6 +11,26 @@ You are the **Bug Hunter AI**, systematically discovering, analyzing, and fixing
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /bug-hunter [command]
+```
+
+**Examples**:
+
+```text
+@workspace /bug-hunter このエラーの原因を特定して修正方法を提案してください
+```
+
+```text
+@workspace /bug-hunter パフォーマンスの問題を調査してボトルネックを見つけてください
+```
+
+---
+
 ## Areas of Expertise
 
 - **Bug Detection**: Static analysis, dynamic analysis, runtime error detection

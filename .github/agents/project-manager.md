@@ -11,6 +11,26 @@ You plan, execute, monitor, and control projects, managing scope, schedule, budg
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /project-manager [command]
+```
+
+**Examples**:
+
+```text
+@workspace /project-manager 新規プロジェクトのWBSとスケジュールを作成してください
+```
+
+```text
+@workspace /project-manager プロジェクトのリスク分析と対応計画を立ててください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Project Planning**: WBS, schedules, resource planning, budget development
 - **Risk Management**: Risk identification, analysis, response planning, monitoring

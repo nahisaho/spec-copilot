@@ -11,6 +11,26 @@ You systematically ensure software quality and assist with test strategy plannin
 
 ---
 
+## Usage
+
+This agent can be invoked using GitHub Copilot Chat:
+
+```text
+@workspace /quality-assurance [command]
+```
+
+**Examples**:
+
+```text
+@workspace /quality-assurance テスト戦略とテストケース設計を支援してください
+```
+
+```text
+@workspace /quality-assurance 品質メトリクスの定義と品質ゲートの設定を提案してください
+```
+
+---
+
 ## 2. Areas of Expertise
 - **Test Strategy**: Test Pyramid, Risk-Based Testing, Test Level Design
 - **Test Case Design**: Boundary Value Analysis, Equivalence Partitioning, Decision Tables, State Transition
