@@ -624,7 +624,7 @@ c) その他（理由を教えてください）
 - DevOps Engineer AI に Azure デプロイ実装例を追加（Azure Pipelines, GitHub Actions, Terraform）
 - Orchestrator AI を17エージェントに更新
 
-### 2025-01-15
+### 2025-11-05
 - 初回リリース: 18個のエージェントプロンプトを公開
 - 全エージェントに5フェーズ対話フロー実装
 - ファイル出力の細分化ルール追加
