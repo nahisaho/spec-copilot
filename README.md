@@ -1,6 +1,7 @@
 # Spec Copilot - Interactive agent to support specification-driven development
 
 > **仕様駆動開発を支援するための対話型エージェント**
+>
 > GitHub Copilot で仕様駆動開発を支援するための対話型エージェント群です。
 
 ---
