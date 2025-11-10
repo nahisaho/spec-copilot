@@ -597,30 +597,110 @@ The above is a template. Customize the following according to actual reviews:
    - Complete one file before proceeding to the next
    - Request user confirmation after each file creation
 
-2. **Split Large Documents by Section**
-   - If a document exceeds 500 lines, split into multiple parts
-   - Example: Design Doc Part 1 (Sections 1-3), Part 2 (Sections 4-6), Part 3 (Sections 7-9)
-   - Confirm with user before proceeding to next part
+2. **細分化して頻繁に保存 (Subdivide and Save Frequently)**
+   - **If a document exceeds 300 lines, split into multiple parts**
+   - **Save each section/chapter as a separate file immediately after completion**
+   - **Update progress report after each file save**
+   - Example subdivisions:
+     - Review Report → Part 1 (Code Quality), Part 2 (Security & Performance), Part 3 (Recommendations)
+     - Large Code Review → Part 1 (Architecture), Part 2 (Implementation), Part 3 (Testing & Documentation)
+   - Request user confirmation before proceeding to next part
 
-3. **Recommended Order for Deliverable Generation**
+3. **Section-by-Section Creation**
+   - Create and save documents section by section
+   - Do not wait until entire document is complete
+   - Save intermediate progress frequently
+   - Example workflow:
+     ```
+     Step 1: Create Section 1 → Save to file → Update progress report
+     Step 2: Create Section 2 → Save to file → Update progress report
+     Step 3: Create Section 3 → Save to file → Update progress report
+     ```
+
+4. **Recommended Generation Order**
    - Generate most important files first
-   - Example: Design doc → ER diagram/DDL → Supplementary materials
-   - Follow user preference if they specify particular files
+   - Review Report → Part 1 (Code Quality), Part 2 (Security & Performance), Part 3 (Recommendations)
+   - Follow user preference if specific files are requested
 
-4. **User Confirmation Message Example**
+5. **User Confirmation Message Example**
    ```
-   ✅ {filename} creation complete.
+   ✅ {filename} creation completed (Section X of Y).
+   📊 Progress: XX% complete
 
-   Shall I create the next file?
-   a) Yes, create the next file "{next filename}"
-   b) No, pause here
+   Create next file?
+   a) Yes, create next file "{next filename}"
+   b) No, pause here for now
    c) Create a different file first (please specify filename)
    ```
 
-5. **Prohibitions**
+6. **Prohibited Actions**
    - ❌ Generating multiple large documents at once
-   - ❌ Creating files sequentially without user confirmation
-   - ❌ "All deliverables generated" batch completion messages
+   - ❌ Generating files sequentially without user confirmation
+   - ❌ "All deliverables generated" bulk completion messages
+   - ❌ Creating documents over 300 lines without splitting
+   - ❌ Waiting to save until entire document is complete
+
+### Progress Report Update
+
+**IMPORTANT**: Update progress report at each step.
+
+#### When to Update Progress Report
+
+1. **At Phase 4 Start (Deliverable Generation)**
+   - Update "現在進行中のステップ" section in `docs/progress-report.md`
+   - Record: Agent name, task description, expected deliverables
+
+2. **After Each File Creation**
+   - Update progress percentage
+   - Add completed file to deliverables list
+
+3. **At Phase Completion**
+   - Move from "現在進行中のステップ" to "完了したステップ"
+   - Update progress summary
+   - Add entry to change history
+
+#### Update Procedure
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### [日付] [時刻] - [タスク名]
+- **担当エージェント**: Code Reviewer AI
+- **実施内容**: [具体的な作業内容]
+- **進捗率**: [0-100]%
+- **予定成果物**:
+  - `[ファイルパス1]`
+  - `[ファイルパス2]`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase 4 Start)
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### 2025-11-10 15:30 - Code Reviewer AI
+- **担当エージェント**: Code Reviewer AI
+- **実施内容**: UserServiceコンポーネントのコードレビュー実施
+- **進捗率**: 50%
+- **予定成果物**:
+  - `reviews/reports/code-review-user-service-20251110.md`
+  - `reviews/metrics/review-metrics-user-service-20251110.md`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase Completion)
+
+```markdown
+## ✅ 完了したステップ
+
+### 2025-11-10 16:45 - UserServiceコードレビュー完了
+- **担当エージェント**: Code Reviewer AI
+- **成果物**:
+  - ✅ `reviews/reports/code-review-user-service-20251110.md` (レビューレポート)
+  - ✅ `reviews/metrics/review-metrics-user-service-20251110.md` (品質メトリクス)
+- **ステータス**: ✅ 完了 (100%)
+```
 
 ### 9.2 Output Directories
 - **Base Path**: `./reviews/`

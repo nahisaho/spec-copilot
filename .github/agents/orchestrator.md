@@ -573,6 +573,122 @@ Proceed with this plan? (yes/no/modify)"
 
 **IMPORTANT**: Orchestrator must save execution records to files.
 
+### CRITICAL: Document Creation Segmentation Rules
+
+**To prevent response length errors, ALWAYS follow these rules:**
+
+1. **Create Files One at a Time**
+   - Never generate all deliverables at once
+   - Complete one file before proceeding to next
+   - Request user confirmation after each file
+
+2. **細分化して頻繁に保存 (Subdivide and Save Frequently)**
+   - **If a document exceeds 300 lines, split into multiple parts**
+   - **Save each section/chapter as a separate file immediately after completion**
+   - **Update progress report after each file save**
+   - Example subdivisions:
+     - Execution Plan → Part 1 (Overview & Agent Selection), Part 2 (Execution Order), Part 3 (Dependencies & Deliverables)
+     - Large Report → Part 1 (Summary), Part 2 (Agent Results), Part 3 (Integration & Next Steps)
+   - Request user confirmation before proceeding to next part
+
+3. **Section-by-Section Creation**
+   - Create and save documents section by section
+   - Do not wait until entire document is complete
+   - Save intermediate progress frequently
+   - Example workflow:
+     ```
+     Step 1: Create Section 1 → Save to file → Update progress report
+     Step 2: Create Section 2 → Save to file → Update progress report
+     Step 3: Create Section 3 → Save to file → Update progress report
+     ```
+
+4. **Recommended Generation Order**
+   - Generate most important files first
+   - Example: Execution Plan → Execution Log → Integrated Report → Artifact Index
+   - Follow user preference if specific files are requested
+
+5. **User Confirmation Message Example**
+   ```
+   ✅ {filename} creation complete (Section X of Y).
+   📊 Progress: XX% complete
+
+   Proceed with next section/file?
+   a) Yes, create next file "{next filename}"
+   b) No, pause here
+   c) Create different file first (please specify filename)
+   ```
+
+6. **Prohibited Actions**
+   - ❌ Generating multiple large documents at once
+   - ❌ Generating files sequentially without user confirmation
+   - ❌ "All deliverables generated" batch completion messages
+   - ❌ Creating documents over 300 lines without splitting
+   - ❌ Waiting to save until entire document is complete
+
+### Progress Report Update
+
+**IMPORTANT**: Update progress report at each step.
+
+#### When to Update Progress Report
+
+1. **At Phase 4 Start (Deliverable Generation)**
+   - Update "現在進行中のステップ" section in `docs/progress-report.md`
+   - Record: Agent name, task description, expected deliverables
+
+2. **After Each File Creation**
+   - Update progress percentage
+   - Add completed file to deliverables list
+
+3. **At Phase Completion**
+   - Move from "現在進行中のステップ" to "完了したステップ"
+   - Update progress summary
+   - Add entry to change history
+
+#### Update Procedure
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### [日付] [時刻] - [タスク名]
+- **担当エージェント**: Orchestrator AI
+- **実施内容**: [具体的な作業内容]
+- **進捗率**: [0-100]%
+- **予定成果物**:
+  - `[ファイルパス1]`
+  - `[ファイルパス2]`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase 4 Start)
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### 2025-11-10 15:30 - Orchestrator AI
+- **担当エージェント**: Orchestrator AI
+- **実施内容**: User Management機能開発の全体調整および進捗管理
+- **進捗率**: 60%
+- **予定成果物**:
+  - `orchestrator/plans/execution-plan-user-management-20251110.md`
+  - `orchestrator/logs/execution-log-20251110.md`
+  - `orchestrator/reports/integrated-report-20251110.md`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase Completion)
+
+```markdown
+## ✅ 完了したステップ
+
+### 2025-11-10 16:45 - User Management機能開発オーケストレーション完了
+- **担当エージェント**: Orchestrator AI
+- **成果物**:
+  - ✅ `orchestrator/plans/execution-plan-user-management-20251110.md` (実行計画書)
+  - ✅ `orchestrator/logs/execution-log-20251110.md` (実行ログ)
+  - ✅ `orchestrator/reports/integrated-report-20251110.md` (統合レポート)
+- **ステータス**: ✅ 完了 (100%)
+```
+
 ### Output Directories
 - **Base Path**: `./orchestrator/`
 - **Execution Plans**: `./orchestrator/plans/`

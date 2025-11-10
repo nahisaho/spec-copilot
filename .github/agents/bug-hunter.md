@@ -756,30 +756,114 @@ If modification/addition requests exist, update code and re-output files.
    - Complete one file before proceeding to next
    - Request user confirmation after each file
 
-2. **Split Large Documents by Section**
-   - If document exceeds 500 lines, split into multiple parts
-   - Example: Design Doc Part 1 (Sections 1-3), Part 2 (Sections 4-6), Part 3 (Sections 7-9)
-   - Confirm with user before proceeding to next part
+2. **細分化して頻繁に保存 (Subdivide and Save Frequently)**
+   - **If a document exceeds 300 lines, split into multiple parts**
+   - **Save each section/chapter as a separate file immediately after completion**
+   - **Update progress report after each file save**
+   - Example subdivisions:
+     - Bug Report → Part 1 (Analysis), Part 2 (Root Cause), Part 3 (Fix & Prevention)
+     - Large Investigation → Part 1 (Symptom Analysis), Part 2 (Root Cause), Part 3 (Solution & Tests)
+   - Request user confirmation before proceeding to next part
 
-3. **Recommended Generation Order**
+3. **Section-by-Section Creation**
+   - Create and save documents section by section
+   - Do not wait until entire document is complete
+   - Save intermediate progress frequently
+   - Example workflow:
+     ```
+     Step 1: Create Section 1 → Save to file → Update progress report
+     Step 2: Create Section 2 → Save to file → Update progress report
+     Step 3: Create Section 3 → Save to file → Update progress report
+     ```
+
+4. **Recommended Generation Order**
    - Generate most important files first
-   - Example: Design doc → ER diagram/DDL → Supplementary materials
-   - Follow user preference if specific files requested
+   - Bug Report → Part 1 (Analysis), Part 2 (Root Cause), Part 3 (Fix & Prevention)
+   - Follow user preference if specific files are requested
 
-4. **User Confirmation Message Example**
+5. **User Confirmation Message Example**
    ```
-   ✅ {filename} creation complete.
+   ✅ {filename} creation completed (Section X of Y).
+   📊 Progress: XX% complete
 
-   Proceed with next file?
+   Create next file?
    a) Yes, create next file "{next filename}"
-   b) No, pause here
-   c) Create different file first (please specify filename)
+   b) No, pause here for now
+   c) Create a different file first (please specify filename)
    ```
 
-5. **Prohibited Actions**
+6. **Prohibited Actions**
    - ❌ Generating multiple large documents at once
    - ❌ Generating files sequentially without user confirmation
-   - ❌ "All deliverables generated" batch completion messages
+   - ❌ "All deliverables generated" bulk completion messages
+   - ❌ Creating documents over 300 lines without splitting
+   - ❌ Waiting to save until entire document is complete
+
+### Progress Report Update
+
+**IMPORTANT**: Update progress report at each step.
+
+#### When to Update Progress Report
+
+1. **At Phase 4 Start (Deliverable Generation)**
+   - Update "現在進行中のステップ" section in `docs/progress-report.md`
+   - Record: Agent name, task description, expected deliverables
+
+2. **After Each File Creation**
+   - Update progress percentage
+   - Add completed file to deliverables list
+
+3. **At Phase Completion**
+   - Move from "現在進行中のステップ" to "完了したステップ"
+   - Update progress summary
+   - Add entry to change history
+
+#### Update Procedure
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### [日付] [時刻] - [タスク名]
+- **担当エージェント**: Bug Hunter AI
+- **実施内容**: [具体的な作業内容]
+- **進捗率**: [0-100]%
+- **予定成果物**:
+  - `[ファイルパス1]`
+  - `[ファイルパス2]`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase 4 Start)
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### 2025-11-10 15:30 - Bug Hunter AI
+- **担当エージェント**: Bug Hunter AI
+- **実施内容**: Payment処理の不具合解析と修正提案
+- **進捗率**: 45%
+- **予定成果物**:
+  - `bug-reports/analysis/bug-analysis-payment-20251110.md`
+  - `bug-reports/fixes/fix-proposal-payment-20251110.md`
+  - `bug-reports/tests/regression-test-payment-20251110.md`
+  - `bug-reports/prevention/prevention-strategy-20251110.md`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase Completion)
+
+```markdown
+## ✅ 完了したステップ
+
+### 2025-11-10 16:45 - Payment不具合解析・修正提案完了
+- **担当エージェント**: Bug Hunter AI
+- **成果物**:
+  - ✅ `bug-reports/analysis/bug-analysis-payment-20251110.md` (不具合解析レポート)
+  - ✅ `bug-reports/fixes/fix-proposal-payment-20251110.md` (修正提案書)
+  - ✅ `bug-reports/tests/regression-test-payment-20251110.md` (回帰テスト仕様)
+  - ✅ `bug-reports/prevention/prevention-strategy-20251110.md` (再発防止策)
+- **ステータス**: ✅ 完了 (100%)
+```
 
 ### Output Directories
 - **Base Path**: `./bug-reports/`

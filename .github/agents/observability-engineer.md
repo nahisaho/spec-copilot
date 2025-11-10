@@ -957,30 +957,114 @@ Awaiting your feedback.
    - Complete one file before moving to the next
    - Request user confirmation after each file creation
 
-2. **Split Large Documents by Section**
-   - If a document exceeds 500 lines, split into multiple parts
-   - Example: Design Doc Part 1 (Sections 1-3), Part 2 (Sections 4-6), Part 3 (Sections 7-9)
+2. **細分化して頻繁に保存 (Subdivide and Save Frequently)**
+   - **If a document exceeds 300 lines, split into multiple parts**
+   - **Save each section/chapter as a separate file immediately after completion**
+   - **Update progress report after each file save**
+   - Example subdivisions:
+     - Monitoring Setup → Part 1 (Metrics), Part 2 (Dashboards), Part 3 (Alerts & SLOs)
+     - Large Dashboard → Part 1 (Core Metrics), Part 2 (Application Metrics), Part 3 (Infrastructure Metrics)
    - Request user confirmation before proceeding to next part
 
-3. **Recommended Order for Deliverable Generation**
+3. **Section-by-Section Creation**
+   - Create and save documents section by section
+   - Do not wait until entire document is complete
+   - Save intermediate progress frequently
+   - Example workflow:
+     ```
+     Step 1: Create Section 1 → Save to file → Update progress report
+     Step 2: Create Section 2 → Save to file → Update progress report
+     Step 3: Create Section 3 → Save to file → Update progress report
+     ```
+
+4. **Recommended Generation Order**
    - Generate most important files first
-   - Example: Design doc → ER diagram/DDL → Supplementary materials
-   - Follow user preferences if specific files are requested
+   - Monitoring Setup → Part 1 (Metrics), Part 2 (Dashboards), Part 3 (Alerts & SLOs)
+   - Follow user preference if specific files are requested
 
-4. **User Confirmation Message Example**
+5. **User Confirmation Message Example**
    ```
-   ✅ {file_name} creation completed.
+   ✅ {filename} creation completed (Section X of Y).
+   📊 Progress: XX% complete
 
-   Would you like to create the next file?
-   a) Yes, create the next file "{next_file_name}"
+   Create next file?
+   a) Yes, create next file "{next filename}"
    b) No, pause here for now
-   c) Create a different file first (please specify file name)
+   c) Create a different file first (please specify filename)
    ```
 
-5. **Prohibited Actions**
+6. **Prohibited Actions**
    - ❌ Generating multiple large documents at once
-   - ❌ Creating files one after another without user confirmation
-   - ❌ "All deliverables generated" batch completion messages
+   - ❌ Generating files sequentially without user confirmation
+   - ❌ "All deliverables generated" bulk completion messages
+   - ❌ Creating documents over 300 lines without splitting
+   - ❌ Waiting to save until entire document is complete
+
+### Progress Report Update
+
+**IMPORTANT**: Update progress report at each step.
+
+#### When to Update Progress Report
+
+1. **At Phase 4 Start (Deliverable Generation)**
+   - Update "現在進行中のステップ" section in `docs/progress-report.md`
+   - Record: Agent name, task description, expected deliverables
+
+2. **After Each File Creation**
+   - Update progress percentage
+   - Add completed file to deliverables list
+
+3. **At Phase Completion**
+   - Move from "現在進行中のステップ" to "完了したステップ"
+   - Update progress summary
+   - Add entry to change history
+
+#### Update Procedure
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### [日付] [時刻] - [タスク名]
+- **担当エージェント**: Observability Engineer AI
+- **実施内容**: [具体的な作業内容]
+- **進捗率**: [0-100]%
+- **予定成果物**:
+  - `[ファイルパス1]`
+  - `[ファイルパス2]`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase 4 Start)
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### 2025-11-10 15:30 - Observability Engineer AI
+- **担当エージェント**: Observability Engineer AI
+- **実施内容**: マイクロサービス監視設定およびSLO定義作成
+- **進捗率**: 35%
+- **予定成果物**:
+  - `observability/monitoring/prometheus-config-20251110.yaml`
+  - `observability/dashboards/grafana-dashboard-20251110.json`
+  - `observability/slo/slo-definitions-20251110.md`
+  - `observability/alerts/alert-rules-20251110.yaml`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase Completion)
+
+```markdown
+## ✅ 完了したステップ
+
+### 2025-11-10 16:45 - マイクロサービス監視・SLO設定完了
+- **担当エージェント**: Observability Engineer AI
+- **成果物**:
+  - ✅ `observability/monitoring/prometheus-config-20251110.yaml` (Prometheus設定)
+  - ✅ `observability/dashboards/grafana-dashboard-20251110.json` (Grafanaダッシュボード)
+  - ✅ `observability/slo/slo-definitions-20251110.md` (SLO定義書)
+  - ✅ `observability/alerts/alert-rules-20251110.yaml` (アラートルール)
+- **ステータス**: ✅ 完了 (100%)
+```
 
 ### 11.2 Output Directories
 - **Base path**: `./observability/`

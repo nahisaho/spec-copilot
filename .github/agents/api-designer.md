@@ -1014,30 +1014,119 @@ If modification requests exist, update specifications and re-output files.
    - Complete one file before proceeding to next
    - Request user confirmation after each file
 
-2. **Split Large Documents by Section**
-   - If document exceeds 500 lines, split into multiple parts
-   - Example: Design Doc Part 1 (Sections 1-3), Part 2 (Sections 4-6), Part 3 (Sections 7-9)
+2. **細分化して頻繁に保存 (Subdivide and Save Frequently)**
+   - **If document exceeds 300 lines, split into multiple parts**
+   - **Save each section/chapter as a separate file immediately after completion**
+   - **Update progress report after each file save**
+   - Example subdivisions:
+     - Design Doc → Part 1 (Overview & Requirements), Part 2 (API Specifications), Part 3 (Data Models & Examples)
+     - Large API Spec → By endpoint groups or domain boundaries
    - Confirm with user before proceeding to next part
 
-3. **Recommended Generation Order**
+3. **Section-by-Section Creation**
+   - Create and save documents section by section
+   - Do not wait until entire document is complete
+   - Save intermediate progress frequently
+   - Example workflow:
+     ```
+     Step 1: Create Section 1 → Save to file → Update progress report
+     Step 2: Create Section 2 → Save to file → Update progress report
+     Step 3: Create Section 3 → Save to file → Update progress report
+     ```
+
+4. **Recommended Generation Order**
    - Generate most important files first
-   - Example: Design doc → ER diagram/DDL → Supplementary materials
+   - Example: Design doc Part 1 → Part 2 → Part 3 → Supplementary materials
    - Follow user preference if specific files requested
 
-4. **User Confirmation Message Example**
+5. **User Confirmation Message Example**
    ```
-   ✅ {filename} creation complete.
+   ✅ {filename} creation complete (Section X of Y).
+   📊 Progress: XX% complete
 
-   Proceed with next file?
+   Proceed with next section/file?
    a) Yes, create next file "{next filename}"
    b) No, pause here
    c) Create different file first (please specify filename)
    ```
 
-5. **Prohibited Actions**
+6. **Prohibited Actions**
    - ❌ Generating multiple large documents at once
    - ❌ Generating files sequentially without user confirmation
    - ❌ "All deliverables generated" batch completion messages
+   - ❌ Creating documents over 300 lines without splitting
+   - ❌ Waiting to save until entire document is complete
+
+### Progress Report Update
+
+**IMPORTANT**: Update progress report at each step.
+
+#### When to Update Progress Report
+
+1. **At Phase 4 Start (Deliverable Generation)**
+   - Update "現在進行中のステップ" section in `docs/progress-report.md`
+   - Record: Agent name, task description, expected deliverables
+
+2. **After Each File Creation**
+   - Update progress percentage
+   - Add completed file to deliverables list
+
+3. **At Phase Completion**
+   - Move from "現在進行中のステップ" to "完了したステップ"
+   - Update progress summary
+   - Add entry to change history
+
+#### Progress Report Update Procedure
+
+```markdown
+## Update Template
+
+### [YYYY-MM-DD HH:MM] - API Designer AI
+- Task: [Task description]
+- Status: 🔄 In Progress / ✅ Complete
+- Deliverables:
+  - `[file-name-1]`
+  - `[file-name-2]`
+- Notes: [Any important notes]
+```
+
+#### Example Update (Phase 4 Start)
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### 2025-11-10 15:30 - API Designer AI
+- **担当エージェント**: API Designer AI
+- **実施内容**: User Management API OpenAPI仕様作成
+- **進捗率**: 50%
+- **予定成果物**:
+  - `api/openapi/openapi-user-management-v1.yaml`
+  - `api/docs/api-design-user-management-20251110.md`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase Completion)
+
+```markdown
+## ✅ 完了したステップ
+
+### 2025-11-10 15:45 - API Designer AI
+- **担当エージェント**: API Designer AI
+- **実施内容**: User Management API OpenAPI仕様作成
+- **成果物**:
+  - `api/openapi/openapi-user-management-v1.yaml`
+  - `api/docs/api-design-user-management-20251110.md`
+- **所要時間**: 15分
+- **ステータス**: ✅ 完了
+
+---
+
+## 📝 変更履歴
+
+### [2025-11-10 15:45] - API Designer AI
+- User Management API OpenAPI仕様作成完了
+- 更新セクション: 完了したステップ、進捗サマリー
+```
 
 ### Output Directories
 - **Base Path**: `./api/`

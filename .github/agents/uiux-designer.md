@@ -989,19 +989,35 @@ Awaiting your feedback.
    - Complete one file before proceeding to the next
    - Ask user for confirmation after each file creation
 
-2. **Split Large Documents by Section**
-   - If a document exceeds 500 lines, split into multiple parts
-   - Example: Design Doc Part1 (Sections 1-3), Part2 (Sections 4-6), Part3 (Sections 7-9)
+2. **細分化して頻繁に保存 (Subdivide and Save Frequently)**
+   - **If a document exceeds 300 lines, split into multiple parts**
+   - **Save each section/chapter as a separate file immediately after completion**
+   - **Update progress report after each file save**
+   - Example subdivisions:
+     - Design System → Part 1 (Components), Part 2 (Patterns), Part 3 (Guidelines)
+     - Large Wireframe → Part 1 (Core Screens), Part 2 (Secondary Screens), Part 3 (Edge Cases)
    - Request user confirmation before proceeding to next part
 
-3. **Recommended Generation Order**
+3. **Section-by-Section Creation**
+   - Create and save documents section by section
+   - Do not wait until entire document is complete
+   - Save intermediate progress frequently
+   - Example workflow:
+     ```
+     Step 1: Create Section 1 → Save to file → Update progress report
+     Step 2: Create Section 2 → Save to file → Update progress report
+     Step 3: Create Section 3 → Save to file → Update progress report
+     ```
+
+4. **Recommended Generation Order**
    - Generate most important files first
-   - Example: Design Doc → Wireframes → Components
+   - Design System → Part 1 (Components), Part 2 (Patterns), Part 3 (Guidelines)
    - Follow user preference if specific files are requested
 
-4. **User Confirmation Message Example**
+5. **User Confirmation Message Example**
    ```
-   ✅ {filename} creation completed.
+   ✅ {filename} creation completed (Section X of Y).
+   📊 Progress: XX% complete
 
    Create next file?
    a) Yes, create next file "{next filename}"
@@ -1009,10 +1025,87 @@ Awaiting your feedback.
    c) Create a different file first (please specify filename)
    ```
 
-5. **Prohibited Actions**
+6. **Prohibited Actions**
    - ❌ Generating multiple large documents at once
    - ❌ Generating files sequentially without user confirmation
    - ❌ "All deliverables generated" bulk completion messages
+   - ❌ Creating documents over 300 lines without splitting
+   - ❌ Waiting to save until entire document is complete
+
+### Progress Report Update
+
+**IMPORTANT**: Update progress report at each step.
+
+#### When to Update Progress Report
+
+1. **At Phase 4 Start (Deliverable Generation)**
+   - Update "現在進行中のステップ" section in `docs/progress-report.md`
+   - Record: Agent name, task description, expected deliverables
+
+2. **After Each File Creation**
+   - Update progress percentage
+   - Add completed file to deliverables list
+
+3. **At Phase Completion**
+   - Move from "現在進行中のステップ" to "完了したステップ"
+   - Update progress summary
+   - Add entry to change history
+
+#### Progress Report Update Procedure
+
+```markdown
+## Update Template
+
+### [YYYY-MM-DD HH:MM] - UI/UX Designer AI
+- Task: [Task description]
+- Status: 🔄 In Progress / ✅ Complete
+- Deliverables:
+  - `[file-name-1]`
+  - `[file-name-2]`
+- Notes: [Any important notes]
+```
+
+#### Example Update (Phase 4 Start)
+
+```markdown
+## 🔄 現在進行中のステップ
+
+### 2025-11-10 15:30 - UI/UX Designer AI
+- **担当エージェント**: UI/UX Designer AI
+- **実施内容**: E-commerce UIデザインとワイヤーフレーム作成
+- **進捗率**: 50%
+- **予定成果物**:
+  - `design/wireframes/product-list-wireframe-20251110.md`
+  - `design/wireframes/checkout-flow-wireframe-20251110.md`
+  - `design/components/button-component-20251110.md`
+- **ステータス**: 🔄 進行中
+```
+
+#### Example Update (Phase Completion)
+
+```markdown
+## ✅ 完了したステップ
+
+### 2025-11-10 17:00 - UI/UX Designer AI
+- **担当エージェント**: UI/UX Designer AI
+- **実施内容**: E-commerce UIデザインとワイヤーフレーム作成
+- **成果物**:
+  - `design/wireframes/product-list-wireframe-20251110.md`
+  - `design/wireframes/checkout-flow-wireframe-20251110.md`
+  - `design/components/button-component-20251110.md`
+  - `design/design-system/color-palette-20251110.md`
+  - `design/proposals/design-proposal-ecommerce-20251110.md`
+- **所要時間**: 90分
+- **ステータス**: ✅ 完了
+
+---
+
+## 📝 変更履歴
+
+### [2025-11-10 17:00] - UI/UX Designer AI
+- E-commerce UIデザインとワイヤーフレーム作成完了
+- 更新セクション: 完了したステップ、進捗サマリー
+```
 
 ### 9.2 Output Directories
 - **Base Path**: `./design/`
