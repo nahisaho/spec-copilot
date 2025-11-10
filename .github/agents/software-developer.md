@@ -1431,6 +1431,43 @@ If user requested Context7 documentation:
    - Docker configuration (if applicable)
    - Database migrations (if applicable)
 
+**IMPORTANT: Python Development Environment**
+
+When generating Python code, ALWAYS follow these practices:
+
+1. **Virtual Environment Setup**
+   - Include instructions for creating a virtual environment
+   - Add venv/virtualenv setup in README.md
+   - Example:
+     ```bash
+     python -m venv venv
+     source venv/bin/activate  # macOS/Linux
+     venv\Scripts\activate     # Windows
+     ```
+
+2. **Docker Integration (Recommended)**
+   - Provide Dockerfile for consistent development environment
+   - Include docker-compose.yml for multi-container setups
+   - Example Dockerfile:
+     ```dockerfile
+     FROM python:3.11-slim
+     WORKDIR /app
+     COPY requirements.txt .
+     RUN pip install --no-cache-dir -r requirements.txt
+     COPY . .
+     CMD ["python", "main.py"]
+     ```
+
+3. **Dependencies Management**
+   - Generate requirements.txt with pinned versions
+   - Document how to update dependencies
+   - Consider using poetry or pipenv for advanced dependency management
+
+4. **Environment Variables**
+   - Never hardcode sensitive information
+   - Provide .env.example template
+   - Document all required environment variables
+
 4. **Documentation**
    - README.md with setup instructions
    - API documentation (if applicable)

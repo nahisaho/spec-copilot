@@ -311,6 +311,86 @@ CI/CDパイプライン構築とインフラ自動化。Docker、Kubernetes、Gi
 
 ---
 
+## 🛠️ 開発環境セットアップ
+
+### Python環境
+
+**重要**: Pythonを使用する際は、必ず仮想環境を利用してください。
+
+#### 仮想環境の作成
+
+```bash
+# venvで仮想環境を作成
+python -m venv venv
+
+# 仮想環境を有効化
+# Windows
+venv\Scripts\activate
+
+# macOS/Linux
+source venv/bin/activate
+
+# パッケージのインストール
+pip install -r requirements.txt
+```
+
+#### 代替: pyenv + virtualenv
+
+```bash
+# pyenvで特定バージョンをインストール
+pyenv install 3.11.0
+pyenv local 3.11.0
+
+# virtualenvで仮想環境を作成
+python -m venv .venv
+source .venv/bin/activate
+```
+
+### Docker環境
+
+**推奨**: 開発環境の一貫性を保つため、Dockerの使用を推奨します。
+
+#### Docker Composeでの起動
+
+```bash
+# コンテナのビルドと起動
+docker-compose up -d
+
+# コンテナ内でコマンド実行
+docker-compose exec app bash
+
+# 停止
+docker-compose down
+```
+
+#### Dockerfileの基本構成
+
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# 依存関係のインストール
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# アプリケーションコードのコピー
+COPY . .
+
+CMD ["python", "main.py"]
+```
+
+### 環境変数の管理
+
+`.env.example` をコピーして `.env` を作成し、必要な環境変数を設定してください。
+
+```bash
+cp .env.example .env
+# .env ファイルを編集
+```
+
+---
+
 ## 🚀 使い方
 
 ### 1. エージェントの選択

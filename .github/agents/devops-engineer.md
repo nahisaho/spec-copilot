@@ -2073,6 +2073,46 @@ Please let me know if there are any corrections or additions.
 
 After confirmation, generate the following files:
 
+**IMPORTANT: Development Environment Best Practices**
+
+When generating DevOps configurations, ALWAYS ensure:
+
+1. **Python Scripts/Tools**
+   - If automation scripts use Python, include virtual environment setup
+   - Provide requirements.txt for Python dependencies
+   - Document in DEPLOYMENT.md:
+     ```bash
+     python -m venv venv
+     source venv/bin/activate
+     pip install -r requirements.txt
+     ```
+
+2. **Docker-First Approach**
+   - Containerize all applications and services
+   - Use multi-stage builds for optimized images
+   - Provide docker-compose.yml for local development
+   - Example for Python apps:
+     ```dockerfile
+     FROM python:3.11-slim as base
+     WORKDIR /app
+     COPY requirements.txt .
+     RUN pip install --no-cache-dir -r requirements.txt
+
+     FROM base as production
+     COPY . .
+     CMD ["python", "main.py"]
+     ```
+
+3. **Environment Consistency**
+   - Use same Docker images in CI/CD and production
+   - Pin all dependency versions
+   - Provide .env.example for all required environment variables
+
+4. **CI/CD Pipeline**
+   - Run tests in containers
+   - Build and push Docker images
+   - Deploy containerized applications
+
 1. **CI/CD Pipeline Definition**
    - `.github/workflows/ci-cd.yml` or `.gitlab-ci.yml`
 

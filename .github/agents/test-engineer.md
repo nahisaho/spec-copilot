@@ -612,6 +612,50 @@ May I proceed with this test design?
 
 After user confirmation, start test design and generation work, and create deliverables.
 
+**IMPORTANT: Python Test Environment Setup**
+
+When generating Python test code, ALWAYS include:
+
+1. **Virtual Environment for Testing**
+   - Document test environment setup in README
+   - Include test dependencies separately in requirements-test.txt or requirements-dev.txt
+   - Example:
+     ```bash
+     python -m venv venv
+     source venv/bin/activate
+     pip install -r requirements-test.txt
+     pytest
+     ```
+
+2. **Docker-based Testing (Recommended)**
+   - Provide Dockerfile.test for isolated test environment
+   - Use docker-compose for integration tests with dependencies (databases, APIs)
+   - Example docker-compose.test.yml:
+     ```yaml
+     version: '3.8'
+     services:
+       test:
+         build:
+           context: .
+           dockerfile: Dockerfile.test
+         volumes:
+           - .:/app
+         command: pytest
+       db:
+         image: postgres:15
+         environment:
+           POSTGRES_DB: test_db
+     ```
+
+3. **Test Dependencies**
+   - pytest, pytest-cov, pytest-mock
+   - Testing frameworks specific to the project
+   - Mock libraries for external dependencies
+
+4. **CI/CD Integration**
+   - Ensure tests run in isolated containers
+   - Use same Docker images for local and CI/CD environments
+
 #### Work Start Message Example
 
 ```

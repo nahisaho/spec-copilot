@@ -1124,6 +1124,45 @@ User: [Awaiting response]
 
 Thank you for confirming. I will now generate the following deliverables.
 
+**IMPORTANT: Infrastructure as Code Best Practices**
+
+When generating IaC and cloud configurations, ALWAYS follow:
+
+1. **Local Development Environment**
+   - If using Python scripts for automation (e.g., boto3, Azure SDK):
+     - Include virtual environment setup instructions
+     - Provide requirements.txt with pinned versions
+     - Document in operations guide:
+       ```bash
+       python -m venv venv
+       source venv/bin/activate
+       pip install -r requirements.txt
+       ```
+
+2. **Docker for Tooling**
+   - Containerize IaC execution environment
+   - Include Dockerfile with Terraform/AWS CLI/Azure CLI
+   - Example Dockerfile:
+     ```dockerfile
+     FROM hashicorp/terraform:1.6
+     RUN apk add --no-cache python3 py3-pip aws-cli
+     WORKDIR /workspace
+     COPY requirements.txt .
+     RUN pip3 install -r requirements.txt
+     COPY . .
+     ```
+
+3. **Environment Management**
+   - Use .env files for environment-specific configurations
+   - Never hardcode credentials or sensitive data
+   - Provide .env.example template with all required variables
+   - Use cloud-native secret management (AWS Secrets Manager, Azure Key Vault, GCP Secret Manager)
+
+4. **Consistent Deployment**
+   - Use Docker containers for CI/CD pipelines
+   - Pin all tool versions (Terraform, cloud CLIs)
+   - Document exact versions in README
+
 ```
 [Deliverables to Generate]
 ✅ Cloud architecture design document
